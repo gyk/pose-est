@@ -9,6 +9,14 @@ featCalculator = FeatureCalculator(db, ...
 	'shapeContextsCalculator', shapeContextsCalculator);
 n = db.nImages;
 
+
+%% Chooses feature types, optionally
+mask = FeatureCalculator.makeFeatureMask();
+indicator = mask.OM;
+fprintf('# of selected dimensions: %d\n', sum(indicator));
+featCalculator.setFeatureSelector(indicator);
+
+
 %% Split the database into training and testing sets
 % sets the seed of random number generator, for debugging purpose:
 rndgen('default');
@@ -18,13 +26,16 @@ indicesTE = ~indicesTR;
 indicesTR = find(indicesTR);
 indicesTE = find(indicesTE);
 
+useSelector = ~all(indicator);
 % training
-featsTR = featCalculator.calculate('indicesToCalc', indicesTR);
+featsTR = featCalculator.calculate('useSelector', useSelector, ...
+	'indicesToCalc', indicesTR);
 featCalculator.setFeatureRange(featsTR);
 featsTR = featCalculator.normalizeLerp(featsTR);
 posesTR = db.poses(indicesTR, :);
 % testing
-featsTE = featCalculator.calculate('indicesToCalc', indicesTE);
+featsTE = featCalculator.calculate('useSelector', useSelector, ...
+	'indicesToCalc', indicesTE);
 featsTE = featCalculator.normalizeLerp(featsTE);
 posesTE = db.poses(indicesTE, :);
 % saving
@@ -32,6 +43,7 @@ fprintf('\nPress Ctrl+C to cancel saving\n');
 pause;
 save('RealTrain.mat', 'featsTR', 'posesTR');
 save('RealTest.mat', 'featsTE', 'posesTE');
+
 
 %% Evaluates performance
 matcher = ExhaustiveSearcher(featsTR);
