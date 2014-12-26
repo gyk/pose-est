@@ -37,6 +37,10 @@ classdef SynthExemplarDB < ExemplarDatabase
 			storedId = packed.frameNo(frameID);
 			camId = str2num(ims.cam(2:end));
 			p = packed.coordinates(storedId, :);
+
+			% WORKAROUND:
+			% For some unknown reason, we have to rotate the pose with additional 
+			% 90 degrees to make it consistent with the silhouette.
 			p = obj.rotator.rotate(p, ...
 				mod(camId + SynthExemplarDB.N_CAMS / 4, SynthExemplarDB.N_CAMS));
 			poses(i, :) = p;
