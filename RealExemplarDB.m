@@ -3,7 +3,7 @@ classdef RealExemplarDB < ExemplarDatabase
 	CAMS = {'C1', 'C2', 'C3'};
 	CAMS_POS_MAP = struct('C1', 0, 'C2', 3, 'C3', 1);
 	N_CAM_DIRS = 4;
-	SILHOUETTE_SUFFIX = '*.png';
+	SILHOUETTE_SUFFIX = 'png';
 	IM_PATTERN = ['(?<subject>S\d)\\(?<actionTrial>\w+_\d)', ...
 		'\\(?<cam>C\d+)-(?<frame>\d+)\.'];
 	MT_PATTERN = ['(?<subject>S\d)\\(?<actionTrial>[^\\]+)'];
@@ -12,7 +12,7 @@ classdef RealExemplarDB < ExemplarDatabase
 	methods
 	function obj = RealExemplarDB()
 		obj.images = retrieveFiles(CONFIG.SNAPSHOT_PATH, ...
-			RealExemplarDB.SILHOUETTE_SUFFIX);
+			['*.', RealExemplarDB.SILHOUETTE_SUFFIX]);
 		obj.nImages = numel(obj.images);
 		obj.rotator = Rotator('Z', RealExemplarDB.N_CAM_DIRS);  % up: Z axis
 
@@ -58,7 +58,8 @@ classdef RealExemplarDB < ExemplarDatabase
 
 	function cachingPath = cachingPathAt(obj, i)
 		imPath = obj.imagePathAt(i);
-		cachingPath = fullfile(CONFIG.SNAPSHOT_PATH, strrep(imPath, '.png', '.cch'));
+		cachingPath = fullfile(CONFIG.SNAPSHOT_PATH, ...
+			strrep(imPath, SynthExemplarDB.SILHOUETTE_SUFFIX, 'cch'));
 	end
 
 	function [indicator] = match(obj, ims)
@@ -90,7 +91,7 @@ classdef RealExemplarDB < ExemplarDatabase
 		cam = setDefault('cam', 'C\d');
 		frame = setDefault('frame', '\d+');
 
-		suffix = [strrep(RealExemplarDB.SILHOUETTE_SUFFIX, '*', '\')];
+		suffix = ['\.', RealExemplarDB.SILHOUETTE_SUFFIX];
 		pattern = [subject, '\\', actionTrial, '\\', ...
 			cam, '-', frame, suffix];
 	end
