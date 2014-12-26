@@ -2,11 +2,17 @@
 %% Prepares dataset
 db = RealExemplarDB();
 shapeContextsCalculator = [];
-if exist('shapeContextsCalculator.mat', 'file')
-	load('shapeContextsCalculator.mat');
+
+if exist(CONFIG.REAL_SC_CACHED, 'file')
+	load(CONFIG.REAL_SC_CACHED);
+	featCalculator = FeatureCalculator(db, ...
+		'shapeContextsCalculator', shapeContextsCalculator);
+else
+	shapeContextsCalculator = ...
+		FeatureCalculator.prepareSCCalculator(db);
+	save(CONFIG.REAL_SC_CACHED, 'shapeContextsCalculator');
 end
-featCalculator = FeatureCalculator(db, ...
-	'shapeContextsCalculator', shapeContextsCalculator);
+
 n = db.nImages;
 
 

@@ -37,11 +37,8 @@ classdef FeatureCalculator < handle
 
 		shapeContextsCalculator = p.Results.shapeContextsCalculator;
 		if isempty(shapeContextsCalculator)
-			% shape contexts preparation:
-			shapeContextsCalculator = ShapeContextsCalculator('K', 800); % FIXME
-			shapeContextsCalculator.computeShapemes(exemplarDB);
-			% caching to avoid time-consuming computation
-			save('shapeContextsCalculator.mat', 'shapeContextsCalculator');
+			shapeContextsCalculator = ...
+				FeatureCalculator.prepareSCCalculator(obj.exemplarDB);
 		end
 		obj.shapeContexts = shapeContextsCalculator.shapeContextsFFactory();
 		obj.nPoints = shapeContextsCalculator.nPoints;
@@ -166,6 +163,12 @@ classdef FeatureCalculator < handle
 	end
 
 	methods (Static)
+	function [shapeContextsCalculator] = prepareSCCalculator(exemplarDB)
+		fprintf('Computing shapemes...\n');
+		shapeContextsCalculator = ShapeContextsCalculator('K', 800);
+		shapeContextsCalculator.computeShapemes(exemplarDB);
+	end
+
 	function mask = makeFeatureMask()
 		persistent featureMask
 		if ~isempty(featureMask)
